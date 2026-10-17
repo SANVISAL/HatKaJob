@@ -51,7 +51,7 @@ class UserService {
           // Resend the token
           const token =
             await this.accountVerificationRepo.FindVerificationTokenById({
-              id: existedUser!._id as string,
+              id: String(existedUser!._id),
             });
           if (!token) {
             logger.error(`UserService Create() method error: token not found!`);
