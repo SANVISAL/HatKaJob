@@ -1,0 +1,16 @@
+{
+    "entryFile": "./src/server.ts",
+    "controllerPathGlobs": ["./src/controller/**/*.ts"],
+    "spec": {
+      "outputDirectory": "public",
+      "specVersion": 3
+    },
+    "routes": {
+      "routesDir": "src/routes/v1"
+    },
+    "ignore": [
+      "**/*.test.ts",
+      "node_modules"
+    ]
+  }
+  

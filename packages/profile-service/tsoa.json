@@ -1,0 +1,14 @@
+{
+    "entryFile": "./src/server.ts",
+    "controllerPathGlobs": ["./src/controller/**/*.ts"],
+    "spec": {
+        "outputDirectory": "public/UserSign",
+      "specVersion": 3,
+      "entryFile": "./src/server.ts"
+    },
+    "routes": {
+      "basePath": "/",
+      "routesDir": "src/routes/v1"
+    }
+  }
+  

@@ -1,0 +1,60 @@
+version: "3.9"
+services:
+  rabbitmq:
+    container_name: rabbitmq_container
+    image: rabbitmq:3.13-rc-management-alpine
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  api-gateway:
+    container_name: gateway-container
+    build:
+      context: ../api-gateway
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "4000:4000"
+    env_file: ../api-gateway/configs/.env
+    environment:
+      AUTH_SERVICE_URL: http://auth-container:4001
+      USER_SERVICE_URL: http://localhost:4003
+      NOTIFICATION_SERVICE_URL: http://localhost:4002
+    volumes:
+      - ../api-gateway/src:/app/src
+  auth-service:
+    container_name: auth-container
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "4001:4001"
+    env_file: ../auth-service/configs/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ../auth-service/src:/app/src
+  notification:
+    container_name: notification-container
+    build:
+      context: ../notification
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "4002:4002"
+    env_file: ../notification/configs/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ../notification/src:/app/src

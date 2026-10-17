@@ -1,0 +1,97 @@
+version: "3.9"
+services:
+  rabbitmq:
+    container_name: rabbitmq_container
+    image: rabbitmq:3.13-rc-management-alpine
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  api-gateway:
+    container_name: gateway-container
+    build:
+      context: ./packages/api-gateway
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "4000:4000"
+    env_file: ./packages/api-gateway/configs/.env
+    environment:
+      AUTH_SERVICE_URL: http://auth-container:4001
+      USER_SERVICE_URL: http://profile-container:4003
+      COMPANY_SERVICE_URL: http://company-container:4004
+      NOTIFICATION_SERVICE_URL: http://notification-container:4002
+    volumes:
+      - ./packages/api-gateway/src:/app/src
+    depends_on:
+      - profile-service  # Add this line
+  auth-service:
+    container_name: auth-container
+    build:
+      context: ./packages/auth-service
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "4001:4001"
+    env_file: ./packages/auth-service/configs/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+       - ./packages/auth-service/src:/app/src
+    environment:
+      - API_GATEWAY=http://gateway-container:4000
+
+  notification:
+    container_name: notification-container
+    build:
+      context: ./packages/notification
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "4002:4002"
+    env_file: ./packages/notification/configs/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./packages/notification/src:/app/src
+
+  profile-service:
+    container_name: profile-container
+    build:
+      context: ./packages/profile-service
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "4003:4003"
+    env_file: ./packages/profile-service/configs/.env
+    volumes:
+      - ./packages/profile-service/src:/app/src
+    environment:
+      - API_GATEWAY=http://gateway-container:4000
+  company-service:
+    container_name: company-container
+    build:
+      context: ./packages/company-service
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - "4004:4004"
+    env_file: ./packages/company-service/configs/.env
+    volumes:
+      - ./packages/company-service/src:/app/src
+    environment:
+      - API_GATEWAY=http://gateway-container:4000
+networks:
+  default:
+    driver: bridge
+    

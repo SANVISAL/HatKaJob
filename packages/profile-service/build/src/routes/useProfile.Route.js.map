@@ -1,0 +1,1 @@
+{"version":3,"file":"useProfile.Route.js","sourceRoot":"","sources":["../../../src/routes/useProfile.Route.ts"],"names":[],"mappings":";;AAAC,MAAM,WAAW,GAAG;IACjB,OAAO,EAAE;QACP,IAAI,EAAE,SAAS;QACf,OAAO,EAAE,cAAc;QACvB,MAAM,EAAE,qBAAqB,EAAE,gBAAgB;QAC/C,SAAS,EAAE,MAAM;QACjB,MAAM,EAAE,qBAAqB;QAC7B,qCAAqC;KACtC;IACD,sCAAsC;CACvC,CAAC;AAEF,kBAAe,WAAW,CAAC"}
