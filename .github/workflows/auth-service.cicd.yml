@@ -90,12 +90,12 @@ jobs:
             COMPANY_SERVICE_URL=${{ secrets.COMPANY_SERVICE_URL}}
             API_GATEWAY=${{ secrets.API_GATEWAY }}
             JWT_EXPIRES_IN=${{ secrets.JWT_EXPIRES_IN }}
+            MONGODB_URL=${{ secrets.MONGODB_URL }}
             EOF
-            mkdir -p /home/ubuntu/packages/auth-service
-            cat <<'EOF' > /home/ubuntu/packages/auth-service/private_key.pem
+            cat <<'EOF' > /home/ubuntu/packages/auth-service/build/private_key.pem
             ${{ secrets.JWT_PRIVATE_KEY }}
             EOF
-            chmod 600 /home/ubuntu/packages/auth-service/private_key.pem
+            chmod 600 /home/ubuntu/packages/auth-service/build/private_key.pem
 
       - name: Start
         uses: appleboy/ssh-action@master
