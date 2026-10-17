@@ -3,12 +3,12 @@ FROM node:21-alpine3.18
 WORKDIR /app
 
 # Copy package.json, tsconfig.json, source code
-COPY package.json ./
+COPY package.json package-lock.json ./
 COPY tsconfig.json ./
 COPY src ./src
 
 # Install dependencies and nodemon
-RUN npm install && npm install -g nodemon
+RUN npm ci && npm install -g nodemon
 
 EXPOSE 4002
 
