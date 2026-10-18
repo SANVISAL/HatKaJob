@@ -1,20 +1,53 @@
 "use client";
 import React from "react";
-import { useContext } from "react";
+import { useEffect } from "react";
+import axios from "axios";
 import { Icon, Typography } from "@/components";
 import { Button } from "@nextui-org/react";
 import Image from "next/legacy/image";
 import "../../globals.css";
-import { MyContext } from "@/contexts/CardInfoContext";
 import { useParams } from "next/navigation";
 import Modal from "@/components/molecules/Modal/Modal";
 import { useState } from "react";
 
+interface JobDetail {
+  position?: string;
+  salary?: string;
+  location?: string;
+  endDate?: string;
+}
+
 const Detail = () => {
-  const { CardInfo } = useContext(MyContext);
   const route = useParams();
   const card = route.jobDetail;
-  const CardDetail = CardInfo.find((data) => data.id == card);
+  // Load the job by id so the page works on refresh and direct links,
+  // not only when navigated to from the home page
+  const [CardDetail, setCardDetail] = useState<JobDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/v1/jobs/${card}`
+        );
+        if (response.data.data) {
+          setCardDetail(response.data.data);
+        } else {
+          setNotFound(true);
+        }
+      } catch (error) {
+        console.error("Error fetching job:", error);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJob();
+  }, [card]);
+
   const [isOpen, setIsOpen] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
 
@@ -27,6 +60,22 @@ const Detail = () => {
     e.stopPropagation(); // To prevent redirect when star icon is clicked
     setStarred((prev) => !prev);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  if (notFound || !CardDetail) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Typography>Job not found</Typography>
+      </div>
+    );
+  }
 
   return (
     <>
