@@ -11,6 +11,9 @@ async function getProfileUser() {
   const session = cookieStore.get("session");
   const sigSession = cookieStore.get("session.sig");
 
+  // Logged-out visitors have no session, so skip the round trip entirely
+  if (!session || !sigSession) return undefined;
+
   try {
     const response = await axios.get("http://localhost:4000/v1/users/profile", {
       withCredentials: true, // Include cookies if needed

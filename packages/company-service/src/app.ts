@@ -7,17 +7,11 @@ import getConfig from "./util/config";
 // import * as swaggerDocument from "../public/UserSign/swagger.json";
 import { RegisterRoutes } from "./routes/v1/routes";
 import { errorHandler } from "./middleware/error_HandlerMiddleware";
-import rateLimit from "express-rate-limit";
 // import compression from "compression";
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
 // app.use(compression());
-app.use(limiter);
 app.set("trust proxy", 1);
 app.use(hpp());
 app.use(helmet());

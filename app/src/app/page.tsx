@@ -13,13 +13,14 @@ async function getProfileUser() {
   const session = cookieStore.get("session");
   const sigSession = cookieStore.get("session.sig");
 
+  // Logged-out visitors have no session, so skip the round trip entirely
+  if (!session || !sigSession) return undefined;
+
   try {
     const response = await axios.get("http://localhost:4000/v1/users/profile", {
       withCredentials: true, // Include cookies if needed!
       headers: {
-        Cookie: ` ${session!.name}=${session!.value}; ${sigSession!.name}=${
-          sigSession!.value
-        }`,
+        Cookie: ` ${session.name}=${session.value}; ${sigSession.name}=${sigSession.value}`,
       },
     });
 
@@ -30,8 +31,19 @@ async function getProfileUser() {
   }
 }
 
+async function getJobs() {
+  try {
+    const response = await axios.get("http://localhost:4000/v1/jobs");
+    return Array.isArray(response.data.data) ? response.data.data : [];
+  } catch (error) {
+    console.error(`getJobs() Method error: `, error);
+    return [];
+  }
+}
+
 export default async function Home() {
-  const result = await getProfileUser();
+  // Run both requests in parallel instead of one after another
+  const [result, jobs] = await Promise.all([getProfileUser(), getJobs()]);
   // console.log("result", result);
 
   return (
@@ -41,7 +53,7 @@ export default async function Home() {
       <CardContext>
         <Banner />
         <CardTip />
-        <CardList userProfile={result} />
+        <CardList userProfile={result} initialJobs={jobs} />
         <CardReview />
       </CardContext>
       <Footer />

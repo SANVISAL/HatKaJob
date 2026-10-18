@@ -13,10 +13,12 @@ const Banner: React.FC = () =>{
     <>
       <div className="relative w-full pt-[100%] lg:pt-[40%]">
         <Image
-          src="/banner-work.svg"
+          src="/banner-work.jpg"
           alt="banner-work"
           layout="fill"
           objectFit="cover"
+          priority
+          quality={70}
           className="max-h-lg"
         />
         <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center backdrop-brightness-50">

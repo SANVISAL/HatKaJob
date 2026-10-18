@@ -17,7 +17,7 @@ class PostJob {
 
   async GetAll(): Promise<any> {
     try {
-      const allpost = await Post.find();
+      const allpost = await Post.find().sort({ createdAt: -1 }).lean();
       if (!allpost) {
         return { message: "can not get user" };
       }
@@ -32,11 +32,9 @@ class PostJob {
 
   async FindById({ id }: { id: string }) {
     try {
-      console.log(id);
       const existed = await Post.findOne({
         _id: id,
-      });
-      console.log("exist:", existed);
+      }).lean();
 
       if (!existed) {
         throw new Error("Post not found");

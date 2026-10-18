@@ -24,5 +24,8 @@ const companySchema = new Schema(
   }
 );
 
+// Every authenticated employer request looks the company up by userId
+companySchema.index({ userId: 1 });
+
 const CompanyProfile = model("CompanyProfile", companySchema);
 export { CompanyProfile };

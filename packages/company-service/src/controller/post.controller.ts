@@ -28,10 +28,8 @@ export class PostJob extends Controller {
   @SuccessResponse(StatusCode.Found, "Data Found")
   public async GetAllPosts(): Promise<{ message: string; data: any }> {
     try {
-      console.log("GetAllPosts method called");
       const postservice = new PostService();
       const post = await postservice.GetAllPost();
-      console.log("Posts retrieved:", post);
       return { message: "Success get all post", data: post };
     } catch (error: any) {
       console.error("Error in GetAllPosts:", error);

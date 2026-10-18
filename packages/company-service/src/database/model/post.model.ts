@@ -38,5 +38,9 @@ const postingSchema: Schema = new Schema(
   }
 );
 
+// Speeds up "jobs posted by this company" lookups and newest-first listing
+postingSchema.index({ companyId: 1 });
+postingSchema.index({ createdAt: -1 });
+
 const Post = model("Post", postingSchema);
 export { Post };

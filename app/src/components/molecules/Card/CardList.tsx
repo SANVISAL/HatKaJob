@@ -1,60 +1,37 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
-import axios from "axios";
+import React, { useContext, useEffect } from "react";
 import { MyContext } from "@/contexts/CardInfoContext";
 import { Card } from "./Card";
 import { IUserProfile } from "@/Types/UserProfile";
 import "../../../app/globals.css";
 
-const CardList = ({ userProfile }: { userProfile: IUserProfile }) => {
+const toCard = (item: any): any => ({
+  id: item._id,
+  companyId: item.companyId || "",
+  companyLogo: item.companyLogo || "/default-logo.png",
+  position: item.position || "Unknown position",
+  location: item.location || "Unknown Location",
+  time: item.time || "Unknown time",
+  endDate: item.endDate || "No endDate",
+  salary: item.salary || [],
+  totalEmployees: item.totalEmployees || "number",
+});
+
+const CardList = ({
+  userProfile,
+  initialJobs,
+}: {
+  userProfile: IUserProfile;
+  initialJobs: any[];
+}) => {
   const { CardInfo, setCardInfo } = useContext(MyContext);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+  // Jobs are fetched on the server (see app/page.tsx), so there is no
+  // client-side request waterfall after hydration
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log("Fetching data...");
-        const response = await axios.get("http://localhost:4000/v1/jobs");
-        console.log("Response data:", response.data);
-
-        // Check if response.data.data is an array
-        if (Array.isArray(response.data.data)) {
-          const data = response.data.data.map((item: any) => ({
-            id: item._id,
-            companyId: item.companyId || "",
-            companyLogo: item.companyLogo || "/default-logo.png",
-            position: item.position || "Unknown position",
-            location: item.location || "Unknown Location",
-            time: item.time || "Unknown time",
-            endDate: item.endDate || "No endDate",
-            salary: item.salary || [],
-            totalEmployees: item.totalEmployees || "number",
-          }));
-          console.log("Mapped data:", data);
-          setCardInfo(data);
-        } else {
-          throw new Error("Expected an array but got something else");
-        }
-      } catch (error: any) {
-        console.error("Error fetching data:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [setCardInfo]);
-
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (error) {
-  //   return <div>Error: {error}</div>;
-  // }
+    setCardInfo(initialJobs.map(toCard));
+  }, [initialJobs, setCardInfo]);
 
   return (
     <div>
@@ -72,9 +49,6 @@ const CardList = ({ userProfile }: { userProfile: IUserProfile }) => {
               />
             </div>
           ))}
-        </div>
-        <div className="flex justify-center items-center">
-          {loading ? <div className="spinner"></div> : null}
         </div>
       </main>
     </div>
