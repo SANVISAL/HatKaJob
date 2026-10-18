@@ -27,8 +27,8 @@ const postingSchema: Schema = new Schema(
     availablePositions: { type: String, required: false, default: 0 },
     gender: {
       type: String,
-      enum: ["male", "female", "other"],
-      required: true,
+      enum: ["any", "male", "female", "other"],
+      default: "any",
     },
     createdAt: { type: Date, default: Date.now },
   },

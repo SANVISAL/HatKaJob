@@ -15,9 +15,7 @@ const errorHandler = (
   //   return res.status(err.getStatusCode()).json({errors:err.serializeErrorOutput()});
   // }
   if (err instanceof BaseCustomError) {
-    return res
-      .status(err.getStatusCode())
-      .json({ errors: err.serializeErrorOutput() });
+    return res.status(err.getStatusCode()).json(err.serializeErrorOutput());
   }
 
   return res

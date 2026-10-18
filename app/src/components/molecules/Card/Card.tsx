@@ -151,6 +151,7 @@ const Card: React.FC<CardProps> = ({
               alt="company logo"
               width={48}
               height={48}
+              unoptimized
             />
             <div className="font-Poppins ml-2">
               <Typography>{position}</Typography>

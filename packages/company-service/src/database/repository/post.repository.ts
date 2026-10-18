@@ -10,8 +10,13 @@ class PostJob {
       const create = new Post(postdetail);
       const post = await create.save();
       return post;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      logger.error(`PostRepository Create() method error: ${error}`);
+      // Surface validation problems to the client instead of failing silently
+      if (error?.name === "ValidationError") {
+        throw new APIError(error.message, StatusCode.BadRequest);
+      }
+      throw new APIError("Unable to save job in database");
     }
   }
 

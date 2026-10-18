@@ -12,12 +12,7 @@ class PostService {
     this.postrepo = new PostJob();
   }
   async Create(postdetail: postcreateschema) {
-    try {
-      const create = await this.postrepo.Create(postdetail);
-      return create;
-    } catch (error) {
-      console.log(error);
-    }
+    return await this.postrepo.Create(postdetail);
   }
   async GetAllPost(): Promise<any> {
     try {

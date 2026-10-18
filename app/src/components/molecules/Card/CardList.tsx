@@ -9,7 +9,8 @@ import "../../../app/globals.css";
 const toCard = (item: any): any => ({
   id: item._id,
   companyId: item.companyId || "",
-  companyLogo: item.companyLogo || "/default-logo.png",
+  // The job model stores the company logo as `logo`
+  companyLogo: item.logo || "/company.svg",
   position: item.position || "Unknown position",
   location: item.location || "Unknown Location",
   time: item.time || "Unknown time",

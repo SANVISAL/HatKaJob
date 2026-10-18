@@ -20,8 +20,12 @@ export const authorize = (requireRole: string[]) => {
 
       const { role } = decoded;
       if (!requireRole.includes(role)) {
-        // throw new BaseCustomError(StatusCode.Forbidden, "User does not have the required role");
-        return { message: "Role did not have" };
+        return _next(
+          new APIError(
+            "You do not have permission to do this",
+            StatusCode.Forbidden
+          )
+        );
       }
       (req as AuthRequest).employer = decoded;
 
