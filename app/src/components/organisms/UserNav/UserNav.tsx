@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import axios from "axios";
+import Link from "next/link";
 
 const UserNav = () => {
 
@@ -49,8 +50,12 @@ const UserNav = () => {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="mr-20">
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Favorite</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/seeker-profile">Profile</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/favorite">Favorite</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
             Logout
           </DropdownMenuItem>

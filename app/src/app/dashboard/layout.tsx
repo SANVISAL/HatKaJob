@@ -7,6 +7,8 @@ async function getProfileCompany() {
   const session = cookieStore.get("session");
   const sigSession = cookieStore.get("session.sig");
 
+  if (!session || !sigSession) return undefined;
+
   try {
     const response = await axios.get(
       "http://localhost:4000/v1/companies/profile",

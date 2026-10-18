@@ -3,37 +3,7 @@ import { Nav } from "@/components/organisms/Navbar/Nav";
 import { Footer } from "@/components";
 import "../globals.css";
 import { Metadata } from "next";
-import { cookies } from "next/headers";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { IUserProfile } from "@/Types/UserProfile";
-
-async function getProfileUser() {
-  const cookieStore = cookies();
-  const session = cookieStore.get("session");
-  const sigSession = cookieStore.get("session.sig");
-
-  if (!session || !sigSession) {
-    console.error("Session or session.sig cookie is missing.");
-    return undefined;
-  }
-
-  try {
-    const response = await axios.get("http://localhost:4000/v1/users/profile", {
-      withCredentials: true, // Include cookies if needed
-      headers: {
-        Cookie: ` ${session!.name}=${session!.value}; ${sigSession!.name}=${
-          sigSession!.value
-        }`,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error(`getProfileUser() Method error: `, error);
-    return undefined;
-  }
-}
+import { getProfileUser } from "@/lib/getProfileUser";
 
 const poppins = Poppins({ subsets: ["latin"], weight: "400" });
 export const metadata: Metadata = {
@@ -45,41 +15,12 @@ export default async function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [profile, setProfile] = useState<IUserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fecthProfile = async () => {
-      try {
-        const result = await getProfileUser();
-        if (result) {
-          setProfile(result);
-        } else {
-          setError("Unable to fetch user profile.");
-        }
-      } catch (err) {
-        setError("An error occurred while fetching profile data.");
-      } finally {
-        setLoading(false); // Stop loading after fetching
-      }
-    };
-    fecthProfile();
-  }, []);
-  // Conditional rendering based on the state
-  if (loading) return <div>Loading...</div>; // Show loading indicator
-  if (error) return <div>{error}</div>;
+  const profile = await getProfileUser();
   return (
-    <html lang="en">
-      <link rel="icon" href="/logo.svg" />
-      <body className={poppins.className}>
-        <Nav userProfile={profile as IUserProfile} />
-        <section>{children}</section>
-        <Footer />
-      </body>
-    </html>
+    <div className={poppins.className}>
+      <Nav userProfile={profile} />
+      <section>{children}</section>
+      <Footer />
+    </div>
   );
-}
-{
-  /* <Nav userProfile={profile as IUserProfile} */
 }
