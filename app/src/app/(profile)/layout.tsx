@@ -3,7 +3,7 @@ import { Nav } from "@/components/organisms/Navbar/Nav";
 import { Footer } from "@/components";
 import "../globals.css";
 import { Metadata } from "next";
-import { getProfileUser } from "@/lib/getProfileUser";
+import { getProfileUser } from "@/lib/serverApi";
 
 const poppins = Poppins({ subsets: ["latin"], weight: "400" });
 export const metadata: Metadata = {

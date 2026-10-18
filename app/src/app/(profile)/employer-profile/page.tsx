@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { Icon } from "@/components";
 import { Typography } from "../../../components/atoms/Typography";
 import { Button } from "@/components/ui/button";
-import { getCompanyProfile } from "@/lib/getProfileUser";
+import { getCompanyProfile } from "@/lib/serverApi";
 
 const orDash = (value?: string) => value || "—";
 
