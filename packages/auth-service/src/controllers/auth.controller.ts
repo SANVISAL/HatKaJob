@@ -21,6 +21,7 @@ import { IAuthUserMessageDetails } from "../queues/@types/auth.type";
 import { StatusCode } from "../utils/consts";
 import { logger } from "../utils/logger";
 import APIError from "../errors/api-error";
+import DuplicateError from "../errors/duplicate-error";
 import validateInput from "../middlewares/validate-input";
 import { decodedToken } from "../utils/decodeToken";
 
@@ -51,7 +52,9 @@ export class AuthController extends Controller {
       const userService = new UserService();
       const existedEmail = await userService.FindUserByEmail({ email });
       if (existedEmail) {
-        return { message: "this email already use" };
+        // Throw (409) so the sign-up page shows the error instead of
+        // redirecting to "check your email" when no email was sent
+        throw new DuplicateError("This email is already in use");
       }
       const newUser = await userService.Create({
         username,
