@@ -3,7 +3,8 @@ import express from "express";
 
 const limiterOptions = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes in milliseconds
-  max: 100, // Limit each IP to 100 requests per windowMs
+  // Each page view makes 1-3 requests, so leave room for active visitors
+  max: 500, // Limit each IP to 500 requests per windowMs
   message: "Too many requests from this IP, please try again after 15 minutes",
 });
 
