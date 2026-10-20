@@ -46,7 +46,8 @@
     "gen:spec": "tsoa spec",
     "gen:routes": "tsoa routes",
     "gen:all": "npm run gen:spec && npm run gen:routes",
-    "test": "cross-env NODE_ENV=testing jest --watchAll --config ./jest.config.ts"
+    "test": "cross-env NODE_ENV=testing jest --config ./jest.config.ts",
+    "test:watch": "cross-env NODE_ENV=testing jest --watchAll --config ./jest.config.ts"
   },
   "jest": {
     "testEnvironment": "node",

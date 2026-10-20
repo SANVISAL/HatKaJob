@@ -6,8 +6,7 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "application/*"
+    "packages/*"
   ],
   "scripts": {
     "start:build": "docker compose up --build",

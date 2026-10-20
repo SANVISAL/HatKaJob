@@ -6,7 +6,7 @@ import { decodedToken } from "../utils/jwt";
 import { logger } from "../utils/logger";
 import { StatusCode } from "../utils/consts/status.code";
 import APIError from "../error/api-error";
-import BaseCustomError from "../error/base-custom-error";
+import BaseCustomError from "../utils/base-custom-error";
 
 export interface AuthRequest extends Request {
   seeker?: any;
@@ -20,8 +20,12 @@ export const authorize = (requireRole: string[]) => {
 
       const { role } = decoded;
       if (!requireRole.includes(role)) {
-        // throw new BaseCustomError(StatusCode.Forbidden, "User does not have the required role");
-        return {message: "Role did mot have"}
+        return _next(
+          new APIError(
+            "You do not have permission to access this resource",
+            StatusCode.Forbidden
+          )
+        );
       }
       (req as AuthRequest).seeker = decoded;
 
@@ -32,7 +36,7 @@ export const authorize = (requireRole: string[]) => {
     } catch (error: unknown) {
       logger.error("Authorization error:", error);
       if (error instanceof BaseCustomError) {
-        _next(error);
+        return _next(error);
       }
       _next(
         new APIError("Unauthorized - Invalid token", StatusCode.Unauthorized)

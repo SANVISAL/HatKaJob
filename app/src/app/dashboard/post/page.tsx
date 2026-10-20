@@ -5,8 +5,9 @@ import { FaTrash } from "react-icons/fa";
 import Modal from "@/components/molecules/Modal/Modal";
 import { PostJobForm } from "@/components/organisms/dashboard/PostJobForm";
 import axios from "axios";
+import { API_URL } from "@/lib/config";
 
-const JOBS_URL = "http://localhost:4000/v1/jobs";
+const JOBS_URL = `${API_URL}/v1/jobs`;
 
 interface Company {
   id: string;

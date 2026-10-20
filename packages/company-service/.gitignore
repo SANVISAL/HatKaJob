@@ -20,6 +20,7 @@ jspm_packages/
 # dotenv environment variables file
 .env
 .env.*
+!.env.sample
 
 # IDEs and editors
 .idea/

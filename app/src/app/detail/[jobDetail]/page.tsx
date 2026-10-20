@@ -9,6 +9,7 @@ import "../../globals.css";
 import { useParams } from "next/navigation";
 import Modal from "@/components/molecules/Modal/Modal";
 import { useState } from "react";
+import { API_URL } from "@/lib/config";
 
 interface JobDetail {
   position?: string;
@@ -55,7 +56,7 @@ const Detail = () => {
     const fetchJob = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:4000/v1/jobs/${card}`
+          `${API_URL}/v1/jobs/${card}`
         );
         if (response.data.data) {
           setCardDetail(response.data.data);

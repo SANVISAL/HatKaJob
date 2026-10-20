@@ -6,6 +6,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { API_URL } from "@/lib/config";
 
 const VerifyPage = () => {
   const router = useRouter();
@@ -18,7 +19,7 @@ const VerifyPage = () => {
   const verifyEmailToken = async (token: string) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/v1/auth/verify?token=${token}`,
+        `${API_URL}/v1/auth/verify?token=${token}`,
         {
           withCredentials: true,
         }

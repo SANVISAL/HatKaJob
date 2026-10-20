@@ -12,6 +12,7 @@ import "../../globals.css";
 import { Icon } from "@/components";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/config";
 
 const Login = () => {
   const [loginError, setLoginError] = useState("");
@@ -39,7 +40,7 @@ const Login = () => {
       await LoginSchema.validate({ email, password }, { abortEarly: false });
 
       const response = await axios.post(
-        "http://localhost:4000/v1/auth/login",
+        `${API_URL}/v1/auth/login`,
         { email, password },
         {
           headers: { "Content-Type": "application/json" },

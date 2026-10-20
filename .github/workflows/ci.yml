@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [Development, package]
+  pull_request:
+    branches: [Development, package]
+
+jobs:
+  services:
+    name: ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - company-service
+          - profile-service
+          - notification
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # The backend packages are npm workspaces sharing the root lockfile
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        working-directory: packages/${{ matrix.service }}
+
+      - name: Unit tests
+        run: npm test
+        working-directory: packages/${{ matrix.service }}
+
+      - name: Integration tests (in-memory MongoDB)
+        if: matrix.service == 'company-service'
+        run: npm run test:integration
+        working-directory: packages/company-service
+
+  app:
+    name: app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: app
+
+      - name: Lint
+        run: npm run lint
+        working-directory: app
+
+      - name: Build
+        run: npm run build
+        working-directory: app

@@ -5,8 +5,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Typography, Input, Button } from "@/components";
 import { bufferToDataUrl } from "@/lib/utils";
+import { API_URL } from "@/lib/config";
 
-const PROFILE_URL = "http://localhost:4000/v1/users/profile";
+const PROFILE_URL = `${API_URL}/v1/users/profile`;
 
 // Field names match the profile-service PUT /v1/users/profile form fields
 const emptyForm = {

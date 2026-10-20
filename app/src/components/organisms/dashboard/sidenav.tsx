@@ -4,6 +4,7 @@ import NavLinks from "./nav-links";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { ICompanyProfile } from "@/Types/CompanyProfile";
+import { API_URL } from "@/lib/config";
 
 function SideNav({ companyProfile }: { companyProfile?: ICompanyProfile }) {
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +14,7 @@ function SideNav({ companyProfile }: { companyProfile?: ICompanyProfile }) {
     try {
       setError(null);
       // await axios.post("/api/logout"); // Adjust the URL according to your backend endpoint
-      await axios.get("http://localhost:4000/v1/auth/logout", {
+      await axios.get(`${API_URL}/v1/auth/logout`, {
         withCredentials: true,
       });
       window.location.href = "/login"; // Adjust the path according to your routing setup

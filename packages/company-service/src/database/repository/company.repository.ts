@@ -44,8 +44,9 @@ class CompanyRepository {
 
   async findByEmail({ contactEmail }: { contactEmail: string }): Promise<any> {
     try {
+      // The schema field is `contactemail` (stored lowercased and trimmed)
       const existedEmail = await CompanyProfile.findOne({
-        contactEmail: contactEmail,
+        contactemail: contactEmail?.toLowerCase().trim(),
       });
       return existedEmail;
     } catch (error) {

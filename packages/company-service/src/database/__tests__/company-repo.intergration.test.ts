@@ -1,84 +1,124 @@
-// import { MongoMemoryServer } from "mongodb-memory-server";
-// import mongoose from "mongoose";
-// import CompanyRepo from "../repository/company.repository";
-// import DuplicateError from "../error/duplicate-error";
+import { MongoMemoryServer } from "mongodb-memory-server";
+import mongoose from "mongoose";
+import CompanyRepository from "../repository/company.repository";
+import { CompanyProfile } from "../model/company.model";
+import DuplicateError from "../error/duplicate-error";
+import APIError from "../error/api-error";
 
-// let mongoServer: MongoMemoryServer;
+let mongoServer: MongoMemoryServer;
 
-// beforeAll(async () => {
-//   mongoServer = await MongoMemoryServer.create();
-//   const mongoURL = mongoServer.getUri();
-//   await mongoose.connect(mongoURL);
-// }, 1000000);
+beforeAll(async () => {
+  mongoServer = await MongoMemoryServer.create();
+  await mongoose.connect(mongoServer.getUri());
+  // The unique index on contactemail has to exist before the duplicate tests
+  await CompanyProfile.init();
+}, 120000);
 
-// afterAll(async () => {
-//   await mongoose.disconnect();
-//   await mongoServer.stop();
-// });
+afterAll(async () => {
+  await mongoose.disconnect();
+  await mongoServer?.stop();
+});
 
-// describe("Company repository integration test", () => {
-//   let companyrepo: CompanyRepo;
-//   beforeEach(() => {
-//     companyrepo = new CompanyRepo();
-//   });
+afterEach(async () => {
+  await CompanyProfile.deleteMany({});
+});
 
-//   describe("Create company profile", () => {
-//     test("should add new company profile to database", async () => {
-//       const MOCK_DATA = {
-//         companyName: "name_test",
-//         contactEmail: "test@gmail.com",
-//       };
+describe("Company repository integration test", () => {
+  let companyRepo: CompanyRepository;
+  const MOCK_DATA = {
+    companyname: "name_test",
+    contactemail: "test@gmail.com",
+  };
 
-//       const newcompany = await companyrepo.Create(MOCK_DATA);
-//       expect(newcompany).toBeDefined();
-//       expect(newcompany.companyName).toEqual(MOCK_DATA.companyName);
-//       expect(newcompany.contactEmail).toEqual(MOCK_DATA.contactEmail);
+  beforeAll(() => {
+    jest.spyOn(console, "log").mockImplementation(() => {});
+  });
 
-//       // Check if company profile exists in database
-//       const foundcompany = await companyrepo.FindById({
-//         id: newcompany._id.toString(),
-//       });
-//       expect(foundcompany).toBeDefined();
-//       expect(foundcompany?.companyName).toEqual(MOCK_DATA.companyName);
-//     });
+  beforeEach(() => {
+    companyRepo = new CompanyRepository();
+  });
 
-//     test("should throw DuplicateError if email has been used", async () => {
-//       const MOCK_DATA = {
-//         companyName: "name_test",
-//         contactEmail: "test@gmail.com",
-//       };
+  describe("create", () => {
+    test("should add a new company profile to the database", async () => {
+      const newCompany = await companyRepo.create(MOCK_DATA);
 
-//       await companyrepo.Create(MOCK_DATA);
-//       await expect(companyrepo.Create(MOCK_DATA)).rejects.toThrow(
-//         DuplicateError
-//       );
-//     });
+      expect(newCompany.companyname).toEqual(MOCK_DATA.companyname);
+      expect(newCompany.contactemail).toEqual(MOCK_DATA.contactemail);
 
-//     test("should update existing company", async () => {
-//       const MOCK_DATA = {
-//         companyName: "name_test",
-//         contactEmail: "test@gmail.com",
-//       };
+      const found = await companyRepo.findById({
+        id: newCompany._id.toString(),
+      });
+      expect(found?.companyname).toEqual(MOCK_DATA.companyname);
+    });
 
-//       const newcompany = await companyrepo.Create(MOCK_DATA);
-//       const UPDATE_DATA = {
-//         companyName: "updated_name",
-//         contactEmail: "test@gmail.com",
-//       };
+    test("should throw DuplicateError if the email has been used", async () => {
+      await companyRepo.create(MOCK_DATA);
 
-//       await expect(
-//         companyrepo.Update({
-//           id: newcompany._id.toString(),
-//           update: UPDATE_DATA,
-//         })
-//       ).resolves.not.toThrow();
+      await expect(companyRepo.create(MOCK_DATA)).rejects.toThrow(
+        DuplicateError
+      );
+    });
 
-//       const updatedata = await companyrepo.FindById({
-//         id: newcompany._id.toString(),
-//       });
-//       expect(updatedata).toBeDefined();
-//       expect(updatedata?.companyName).toEqual(UPDATE_DATA.companyName);
-//       expect(updatedata?.contactEmail).toEqual(UPDATE_DATA.contactEmail);
-//     });
-//   });
-// });
+    test("should treat emails that differ only in case as duplicates", async () => {
+      await companyRepo.create(MOCK_DATA);
+
+      await expect(
+        companyRepo.create({ ...MOCK_DATA, contactemail: "TEST@gmail.com" })
+      ).rejects.toThrow(DuplicateError);
+    });
+  });
+
+  describe("findByAuthID", () => {
+    test("should find the company that belongs to an auth user", async () => {
+      await companyRepo.create({ ...MOCK_DATA, userId: "auth-1" } as any);
+
+      const found = await companyRepo.findByAuthID({ userId: "auth-1" });
+
+      expect(found?.contactemail).toEqual(MOCK_DATA.contactemail);
+    });
+
+    test("should return null when no company belongs to the user", async () => {
+      await expect(
+        companyRepo.findByAuthID({ userId: "nobody" })
+      ).resolves.toBeNull();
+    });
+  });
+
+  describe("Update", () => {
+    test("should update an existing company", async () => {
+      const newCompany = await companyRepo.create(MOCK_DATA);
+
+      const updated = await companyRepo.Update({
+        id: newCompany._id.toString(),
+        update: { companyname: "updated_name", location: "Phnom Penh" },
+      });
+
+      expect(updated.companyname).toEqual("updated_name");
+      expect(updated.location).toEqual("Phnom Penh");
+      expect(updated.contactemail).toEqual(MOCK_DATA.contactemail);
+    });
+
+    test("should throw a 404 APIError for an unknown company", async () => {
+      const error = await companyRepo
+        .Update({
+          id: new mongoose.Types.ObjectId().toString(),
+          update: { companyname: "x" },
+        })
+        .catch((e) => e);
+
+      expect(error).toBeInstanceOf(APIError);
+      expect(error.getStatusCode()).toBe(404);
+    });
+  });
+
+  describe("delete", () => {
+    test("should remove the company", async () => {
+      const newCompany = await companyRepo.create(MOCK_DATA);
+      const id = newCompany._id.toString();
+
+      await companyRepo.delete({ id });
+
+      await expect(companyRepo.findById({ id })).resolves.toBeNull();
+    });
+  });
+});

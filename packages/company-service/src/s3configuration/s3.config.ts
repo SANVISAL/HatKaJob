@@ -20,7 +20,7 @@ const s3 = new S3Client({
 });
 // Define file filter to restrict upload types
 const fileFilter: multer.Options["fileFilter"] = (
-  req: Request,
+  _req: Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ): void => {
@@ -38,7 +38,7 @@ const upload = multer({
     bucket: process.env.S3_BUCKET_NAME as string,
     contentType: multerS3.AUTO_CONTENT_TYPE,
     key: (
-      req: Request,
+      _req: Request,
       file: Express.Multer.File,
       cb: (error: Error | null, key?: string) => void
     ): void => {
