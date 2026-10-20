@@ -62,7 +62,7 @@ class UserService {
           }
 
           const messageDetails = {
-            receiverEmail: existedUser!.email,
+            reciverEmail: existedUser!.email, // field name the notification service reads
             verifyLink: `${token.emailVerificationToken}`,
             template: "verifyEmail",
           };

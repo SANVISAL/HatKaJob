@@ -10,10 +10,10 @@ const config: Config.InitialOptions = {
   transform: {
     '^.+\\.ts?$': 'ts-jest',
   },
-  testMatch: ['<rootDir>/src/**/test/*.ts'],
+  testMatch: ['<rootDir>/src/**/__tests__/**/*.test.ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
-    '!src/**/test/*.ts?(x)',
+    '!src/**/__tests__/**',
     '!**/node_modules/**',
   ],
   coverageThreshold: {
