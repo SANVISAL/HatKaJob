@@ -10,14 +10,19 @@ class PostJob {
       const create = new Post(postdetail);
       const post = await create.save();
       return post;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      logger.error(`PostRepository Create() method error: ${error}`);
+      // Surface validation problems to the client instead of failing silently
+      if (error?.name === "ValidationError") {
+        throw new APIError(error.message, StatusCode.BadRequest);
+      }
+      throw new APIError("Unable to save job in database");
     }
   }
 
   async GetAll(): Promise<any> {
     try {
-      const allpost = await Post.find();
+      const allpost = await Post.find().sort({ createdAt: -1 }).lean();
       if (!allpost) {
         return { message: "can not get user" };
       }
@@ -32,11 +37,9 @@ class PostJob {
 
   async FindById({ id }: { id: string }) {
     try {
-      console.log(id);
       const existed = await Post.findOne({
         _id: id,
-      });
-      console.log("exist:", existed);
+      }).lean();
 
       if (!existed) {
         throw new Error("Post not found");

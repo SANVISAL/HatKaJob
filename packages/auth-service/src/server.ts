@@ -20,7 +20,7 @@ async function run() {
 
     // const congig = getConfig(process.env.NODE_ENV)!
     authChannel = (await createQueueConnection()) as Channel;
-    connectMongoDB();
+    await connectMongoDB();
 
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);

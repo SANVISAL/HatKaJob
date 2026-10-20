@@ -65,6 +65,9 @@ export class CompanyController extends Controller {
       console.log("Auth ID:", userId);
       const companyService = new CompanyService();
       const company = await companyService.findByAuthId({ userId });
+      if (!company) {
+        return { message: "Company profile not found", data: null };
+      }
       const result = await companyService.findById({ id: company._id });
       if (!result) {
         return { message: "Could not find", data: null };

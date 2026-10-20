@@ -27,8 +27,8 @@ const postingSchema: Schema = new Schema(
     availablePositions: { type: String, required: false, default: 0 },
     gender: {
       type: String,
-      enum: ["male", "female", "other"],
-      required: true,
+      enum: ["any", "male", "female", "other"],
+      default: "any",
     },
     createdAt: { type: Date, default: Date.now },
   },
@@ -37,6 +37,10 @@ const postingSchema: Schema = new Schema(
     timestamps: true,
   }
 );
+
+// Speeds up "jobs posted by this company" lookups and newest-first listing
+postingSchema.index({ companyId: 1 });
+postingSchema.index({ createdAt: -1 });
 
 const Post = model("Post", postingSchema);
 export { Post };

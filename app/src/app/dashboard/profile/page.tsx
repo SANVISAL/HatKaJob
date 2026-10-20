@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Image from "next/image";
 import { Icon } from "@/components";
 import { Typography } from "../../../components/atoms/Typography";
@@ -9,18 +10,56 @@ import EditEmployer from "@/app/dashboard/edit-employer/page";
 
 const EmployerProfile: React.FC = () => {
   const [employerData, setEmployerData] = useState({
-    id: "1",
-    companyName: "Sathapana Bank",
-    contactEmail: "sathapanabankinfo@gmail.com",
-    contactPhone: "0965774927",
-    contactPerson: "Sal Visal",
-    websiteLink: "https://www.saathapana.com.kh",
-    location: "Phnom Penh",
-    address: "8391 Elgin. St. Celina. Delaware 10",
-    totalEmployees: "10-20",
-    description:
-      "SATHAPANA Limited was originally established as a non-government organization (NGO) in 1995, and at the time of acquisition, it had become a deposit-taking microfinance institution providing funds to the low income people throughout the country with a strong contribution track record in Cambodia economic development.",
+    id: "",
+    logo: "",
+    companyName: "",
+    contactEmail: "",
+    contactPhone: "",
+    contactPerson: "",
+    websiteLink: "",
+    location: "",
+    address: "",
+    totalEmployees: "",
+    description: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:4000/v1/companies/profile",
+          { withCredentials: true }
+        );
+        const company = response.data.data;
+        if (!company) {
+          setError("Company profile not found.");
+          return;
+        }
+        setEmployerData({
+          id: company._id,
+          logo: company.logo || "",
+          companyName: company.companyname || "",
+          contactEmail: company.contactemail || "",
+          contactPhone: company.contactphone || "",
+          contactPerson: company.contactPerson || "",
+          websiteLink: company.websitelink || "",
+          location: company.location || "",
+          address: company.address || "",
+          totalEmployees: company.numberOfemployees || "",
+          description: company.companydescription || "",
+        });
+      } catch (err) {
+        console.error("Error fetching company profile:", err);
+        setError("Unable to load company profile.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCompany();
+  }, []);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,17 +68,34 @@ const EmployerProfile: React.FC = () => {
     setIsOpen(false);
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Typography>{error}</Typography>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="container xl:max-w-[1200px] bg-[#F8F9FA] rounded-xl mt-5 px-10 py-5">
         <div className="w-full flex md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
             <Image
-              src="/company.svg"
+              src={employerData.logo || "/company.svg"}
               alt="company logo"
               width={80}
               height={80}
-              className="rounded-full w-[60px] h-[60px] md:w-[80px] md:h-[80px]"
+              unoptimized
+              className="rounded-full object-cover w-[60px] h-[60px] md:w-[80px] md:h-[80px]"
             />
             <div className="ml-4 md:ml-6">
               <Typography className="mb-1 md:mb-2 text-[18px] md:text-[20px]">

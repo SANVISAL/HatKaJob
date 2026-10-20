@@ -7,7 +7,7 @@ function createConfig(configPath: string) {
   const requiredConfig = [
     "NODE_ENV",
     "PORT",
-    // "MONGODB_URL",
+    "MONGODB_URL",
     "LOG_LEVEL",
     "RABBITMQ_ENDPOINT",
     "JWT_EXPIRES_IN",
@@ -20,7 +20,7 @@ function createConfig(configPath: string) {
   return {
     env: process.env.NODE_ENV,
     port: process.env.PORT,
-    // mongoUrl: process.env.MONGODB_URL,
+    mongoUrl: process.env.MONGODB_URL,
     logLevel: process.env.LOG_LEVEL,
     rabbitMQ: process.env.RABBITMQ_ENDPOINT,
     apiGateway: process.env.API_GATEWAY,

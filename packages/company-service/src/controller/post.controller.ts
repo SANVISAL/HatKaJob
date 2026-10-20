@@ -28,10 +28,8 @@ export class PostJob extends Controller {
   @SuccessResponse(StatusCode.Found, "Data Found")
   public async GetAllPosts(): Promise<{ message: string; data: any }> {
     try {
-      console.log("GetAllPosts method called");
       const postservice = new PostService();
       const post = await postservice.GetAllPost();
-      console.log("Posts retrieved:", post);
       return { message: "Success get all post", data: post };
     } catch (error: any) {
       console.error("Error in GetAllPosts:", error);
@@ -107,7 +105,12 @@ export class PostJob extends Controller {
       // console.log("company ID:", companyid);
       // Check if the provided companyid matches the authenticated user's companyId
       if (companyId) {
-        const postData = { companyId, ...requestBody };
+        const postData = {
+          ...requestBody,
+          companyId,
+          logo: company.logo || "",
+          companyName: requestBody.companyName || company.companyname,
+        };
         const postservice = new PostService();
         const post = await postservice.Create(postData);
         console.log("post Data", post);

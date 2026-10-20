@@ -1,20 +1,78 @@
 "use client";
 import React from "react";
-import { useContext } from "react";
+import { useEffect } from "react";
+import axios from "axios";
 import { Icon, Typography } from "@/components";
 import { Button } from "@nextui-org/react";
 import Image from "next/legacy/image";
 import "../../globals.css";
-import { MyContext } from "@/contexts/CardInfoContext";
 import { useParams } from "next/navigation";
 import Modal from "@/components/molecules/Modal/Modal";
 import { useState } from "react";
 
+interface JobDetail {
+  position?: string;
+  salary?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  duration?: string;
+  time?: string;
+  availablePositions?: string;
+  jobDescription?: string[] | string;
+  jobResponsibilities?: string[] | string;
+  logo?: string;
+  companyName?: string;
+  workplace?: string;
+  totalEmployees?: string;
+}
+
+// Description fields hold HTML from the Quill editor. Extract the text of
+// each paragraph / list item instead of rendering the HTML, so an employer
+// can't inject markup or scripts into this page.
+const toLines = (value?: string[] | string): string[] => {
+  const html = Array.isArray(value) ? value.join("") : value || "";
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const blocks = Array.from(doc.body.querySelectorAll("p, li"));
+  const lines = blocks.length
+    ? blocks.map((el) => el.textContent || "")
+    : [doc.body.textContent || ""];
+  return lines.map((line) => line.trim()).filter(Boolean);
+};
+
+const orDash = (value?: string) => value || "—";
+
 const Detail = () => {
-  const { CardInfo } = useContext(MyContext);
   const route = useParams();
   const card = route.jobDetail;
-  const CardDetail = CardInfo.find((data) => data.id == card);
+  // Load the job by id so the page works on refresh and direct links,
+  // not only when navigated to from the home page
+  const [CardDetail, setCardDetail] = useState<JobDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/v1/jobs/${card}`
+        );
+        if (response.data.data) {
+          setCardDetail(response.data.data);
+        } else {
+          setNotFound(true);
+        }
+      } catch (error) {
+        console.error("Error fetching job:", error);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJob();
+  }, [card]);
+
   const [isOpen, setIsOpen] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
 
@@ -27,6 +85,25 @@ const Detail = () => {
     e.stopPropagation(); // To prevent redirect when star icon is clicked
     setStarred((prev) => !prev);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  if (notFound || !CardDetail) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Typography>Job not found</Typography>
+      </div>
+    );
+  }
+
+  const descriptionLines = toLines(CardDetail.jobDescription);
+  const responsibilityLines = toLines(CardDetail.jobResponsibilities);
 
   return (
     <>
@@ -101,170 +178,101 @@ const Detail = () => {
             </div>
             {/* table */}
             <div className="mt-10 overflow-x-auto">
-              {/* row */}
-              <div className="grid grid-cols-2 lg:grid-cols-4">
-                <div className="col-span-2">
-                  <table className="w-full border-collapse border border-slate-500">
-                    <tbody>
-                      <tr>
-                        <td className="w-1/2 border bg-[#F2F2F2] py-2 px-2">
-                          Duration
-                        </td>
-                        <td className="w-1/2 border text-gray-500 py-2 px-2">
-                          3 months
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+              {[
+                [
+                  ["Duration", CardDetail.duration],
+                  ["Location", CardDetail.location],
+                ],
+                [
+                  ["Employment", CardDetail.time],
+                  ["Deadline", CardDetail.endDate],
+                ],
+                [
+                  ["Start date", CardDetail.startDate],
+                  ["Available positions", CardDetail.availablePositions],
+                ],
+              ].map((row, i) => (
+                <div key={i} className="grid grid-cols-2 lg:grid-cols-4">
+                  {row.map(([label, value]) => (
+                    <div key={label} className="col-span-2">
+                      <table className="w-full border-collapse border">
+                        <tbody>
+                          <tr>
+                            <td className="w-1/2 border bg-[#F2F2F2] py-2 px-2">
+                              {label}
+                            </td>
+                            <td className="w-1/2 border text-gray-500 py-2 px-2">
+                              {orDash(value)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
                 </div>
-                <div className="col-span-2">
-                  <table className="w-full border-collapse border">
-                    <tbody>
-                      <tr>
-                        <td className="w-1/2 border border-l-0 outline-none bg-[#F2F2F2] py-2 px-2">
-                          Location
-                        </td>
-                        <td className="w-1/2 border text-gray-500 py-2 px-2">
-                          {`${CardDetail?.location}`}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-              {/* row */}
-              <div className="grid grid-cols-2 lg:grid-cols-4">
-                <div className="col-span-2">
-                  <table className="w-full border-collapse border border-slate-500">
-                    <tbody>
-                      <tr>
-                        <td className="w-1/2 border bg-[#F2F2F2] py-2 px-2">
-                          Duration
-                        </td>
-                        <td className="w-1/2 border text-gray-500 py-2 px-2">
-                          3 months
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div className="col-span-2">
-                  <table className="w-full border-collapse border">
-                    <tbody>
-                      <tr>
-                        <td className="w-1/2 border border-l-0 outline-none bg-[#F2F2F2] py-2 px-2">
-                          Deadline
-                        </td>
-                        <td className="w-1/2 border text-gray-500 py-2 px-2">
-                          {`${CardDetail?.endDate}`}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+              ))}
             </div>
 
             <div className="mt-8">
               {/* description */}
               <Typography fontSize="lg">Job Descriptions</Typography>
-              <Typography fontSize="sm" className="text-gray-600 mt-1">
-                We are currently looking for a talented and team player to join
-                with us!
-              </Typography>
+              {descriptionLines.length ? (
+                descriptionLines.map((line, i) => (
+                  <Typography
+                    key={i}
+                    fontSize="sm"
+                    className="text-gray-600 mt-1"
+                  >
+                    {line}
+                  </Typography>
+                ))
+              ) : (
+                <Typography fontSize="sm" className="text-gray-600 mt-1">
+                  No description provided.
+                </Typography>
+              )}
             </div>
             <div className="mt-8">
               {/* responsibilities */}
               <Typography fontSize="lg">Job Responsibilities</Typography>
               <Typography fontSize="sm" className="text-gray-600 mt-1">
-                <ul className="leading-10">
-                  <li className="list-disc ml-4">
-                    Follow the software development while applying internal
-                    coding standards and provide detailed project estimates and
-                    work plan.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Interact with project leaders and business on assigned
-                    projects.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Complete assigned tasks in a timely manner with high quality
-                    and documentation.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Collaborate with a team to define, design, and completely
-                    new features.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Identify and correct bottlenecks and fix bugs.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Help maintain code quality, organization, and
-                    automatization.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Take smart risks and champion new ideas.
-                  </li>
-                </ul>
-              </Typography>
-            </div>
-            <div className="mt-8">
-              {/* requirements */}
-              <Typography fontSize="lg">Job Requirements</Typography>
-              <Typography fontSize="sm" className="text-gray-600 mt-1">
-                <ul className="leading-10">
-                  <li className="list-disc ml-4">
-                    Honest, responsible, hard-working with positive attitude and
-                    drive for self-improvement.
-                  </li>
-                  <li className="list-disc ml-4">
-                    1 years+ experience in web development.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Fluency in Python or Go or C++.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Experience REST/RESTful API and web service.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Experience in HTML5, JavaScript, CSS, or SCSS/SASS.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Help maintain code quality, organization, and
-                    automatization.
-                  </li>
-                  <li className="list-disc ml-4">
-                    Fluency in ASP.Net, JQuery, PHP and/or NodeJS is a plus
-                  </li>
-                </ul>
+                {responsibilityLines.length ? (
+                  <ul className="leading-10">
+                    {responsibilityLines.map((line, i) => (
+                      <li key={i} className="list-disc ml-4">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  "No responsibilities listed."
+                )}
               </Typography>
             </div>
           </div>
           <div className="col-span-7 lg:col-span-3 rounded-lg py-10 px-5 border h-[500px] ">
             <div className="flex justify-center items-center flex-col">
               <Image
-                src="/company.svg"
+                src={CardDetail.logo || "/company.svg"}
                 alt="company logo"
                 width={100}
                 height={100}
+                unoptimized
                 className="rounded-full mb-4"
               />
-              {/* <Typography
-                fontSize="lg"
-                className="mt-5"
-              >{`${CardDetail?.companyname}`}</Typography> */}
+              <Typography fontSize="lg" className="mt-5">
+                {orDash(CardDetail.companyName)}
+              </Typography>
             </div>
             <div className="mt-10">
-              <Typography className="leading-10 truncate">San Visal</Typography>
-
               <Typography className="leading-10 truncate">
-                smilecomputertechnology@gmail.com
+                Workplace: {orDash(CardDetail.workplace)}
               </Typography>
               <Typography className="leading-10 truncate">
-                +855 984 383 330
+                Location: {orDash(CardDetail.location)}
               </Typography>
               <Typography className="leading-10 truncate">
-                2972 Westheimer Rd. Santa Ana, Illinois 85486
+                Employees: {orDash(CardDetail.totalEmployees)}
               </Typography>
             </div>
           </div>

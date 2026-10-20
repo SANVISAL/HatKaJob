@@ -4,34 +4,12 @@ import "./globals.css";
 import CardTip from "@/components/molecules/Card/CardTip";
 import CardList from "@/components/molecules/Card/CardList";
 import CardContext from "@/contexts/CardInfoContext";
-import { cookies } from "next/headers";
-import axios from "axios";
 import { Toaster } from "@/components/ui/toaster";
-
-async function getProfileUser() {
-  const cookieStore = cookies();
-  const session = cookieStore.get("session");
-  const sigSession = cookieStore.get("session.sig");
-
-  try {
-    const response = await axios.get("http://localhost:4000/v1/users/profile", {
-      withCredentials: true, // Include cookies if needed!
-      headers: {
-        Cookie: ` ${session!.name}=${session!.value}; ${sigSession!.name}=${
-          sigSession!.value
-        }`,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error(`getProfileUser() Method error: `, error);
-    return undefined;
-  }
-}
+import { getProfileUser, getJobs } from "@/lib/serverApi";
 
 export default async function Home() {
-  const result = await getProfileUser();
+  // Run both requests in parallel instead of one after another
+  const [result, jobs] = await Promise.all([getProfileUser(), getJobs()]);
   // console.log("result", result);
 
   return (
@@ -41,7 +19,7 @@ export default async function Home() {
       <CardContext>
         <Banner />
         <CardTip />
-        <CardList userProfile={result} />
+        <CardList userProfile={result} initialJobs={jobs} />
         <CardReview />
       </CardContext>
       <Footer />

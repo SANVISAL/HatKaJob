@@ -3,13 +3,13 @@ FROM node:21-alpine3.18
 WORKDIR /app
 
 # Copy package.json, tsconfig.json, source code
-COPY package.json ./
+COPY package.json package-lock.json ./
 COPY tsconfig.json ./
 COPY src ./src
 COPY private_key.pem ./
 COPY public/swagger.json ./public/swagger.json
-# Install dependencies and nodemon
-RUN npm install && npm install -g nodemon
+# Install the exact versions from package-lock.json, plus nodemon
+RUN npm ci && npm install -g nodemon
 
 EXPOSE 4001
 

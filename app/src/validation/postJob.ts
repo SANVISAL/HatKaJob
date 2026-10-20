@@ -10,7 +10,7 @@ export const PostJobSchema = Yup.object().shape({
     .required("End date is required")
     .min(Yup.ref("startDate"), "End date can't be before start date"),
   jobDescription: Yup.string().required("Job description is required"),
-  availablePositions: Yup.number().required("Start date is required"),
+  availablePositions: Yup.number().required("Available positions is required"),
   jobResponsibilities: Yup.string().required(
     "Job responsibilities are required"
   ),

@@ -12,12 +12,7 @@ class PostService {
     this.postrepo = new PostJob();
   }
   async Create(postdetail: postcreateschema) {
-    try {
-      const create = await this.postrepo.Create(postdetail);
-      return create;
-    } catch (error) {
-      console.log(error);
-    }
+    return await this.postrepo.Create(postdetail);
   }
   async GetAllPost(): Promise<any> {
     try {
@@ -69,7 +64,7 @@ class PostService {
   //  implementation for get all post job that company posted
   async getPostsByCompanyId(companyId: string): Promise<any[]> {
     try {
-      const posts = await Post.find({ companyId });
+      const posts = await Post.find({ companyId }).lean();
       return posts;
     } catch (error) {
       console.error("Error retrieving posts by company ID:", error);

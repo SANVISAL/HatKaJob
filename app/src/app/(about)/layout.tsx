@@ -3,30 +3,7 @@ import type { Metadata } from "next";
 import {Nav} from "@/components/organisms/Navbar/Nav";
 import { Footer } from "@/components";
 import "../globals.css";
-import { cookies } from "next/headers";
-import axios from "axios";
-
-async function getProfileUser() {
-  const cookieStore = cookies();
-  const session = cookieStore.get("session");
-  const sigSession = cookieStore.get("session.sig");
-
-  try {
-    const response = await axios.get("http://localhost:4000/v1/users/profile", {
-      withCredentials: true, // Include cookies if needed
-      headers: {
-        Cookie: ` ${session!.name}=${session!.value}; ${sigSession!.name}=${
-          sigSession!.value
-        }`,
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error(`getProfileUser() Method error: `, error);
-    return undefined;
-  }
-}
+import { getProfileUser } from "@/lib/serverApi";
 
 const poppins = Poppins({ subsets: ["latin"], weight: "400" });
 export const metadata: Metadata = {

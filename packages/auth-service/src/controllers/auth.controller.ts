@@ -21,6 +21,7 @@ import { IAuthUserMessageDetails } from "../queues/@types/auth.type";
 import { StatusCode } from "../utils/consts";
 import { logger } from "../utils/logger";
 import APIError from "../errors/api-error";
+import DuplicateError from "../errors/duplicate-error";
 import validateInput from "../middlewares/validate-input";
 import { decodedToken } from "../utils/decodeToken";
 
@@ -51,7 +52,9 @@ export class AuthController extends Controller {
       const userService = new UserService();
       const existedEmail = await userService.FindUserByEmail({ email });
       if (existedEmail) {
-        return { message: "this email already use" };
+        // Throw (409) so the sign-up page shows the error instead of
+        // redirecting to "check your email" when no email was sent
+        throw new DuplicateError("This email is already in use");
       }
       const newUser = await userService.Create({
         username,
@@ -61,7 +64,7 @@ export class AuthController extends Controller {
       });
       // Step 2.
       const verificationToken = await userService.SaveVerificationToken({
-        userId: newUser._id as string,
+        userId: String(newUser._id),
       });
 
       const messageDetails = {
@@ -153,7 +156,7 @@ export class AuthController extends Controller {
       const { user, role } = await userService.Login(requestBody);
 
       const jwttoken = await generateSignature({
-        id: user._id as string,
+        id: String(user._id),
         role: role,
       });
 
@@ -205,7 +208,7 @@ export class AuthController extends Controller {
         await newUser.save();
       }
       const jwtToken = await generateSignature({
-        id: newUser._id as string,
+        id: String(newUser._id),
         role: newUser.role,
       });
 
