@@ -7,6 +7,7 @@ import { Typography } from "../../../components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/molecules/Modal/Modal";
 import EditEmployer from "@/app/dashboard/edit-employer/page";
+import { API_URL } from "@/lib/config";
 
 const EmployerProfile: React.FC = () => {
   const [employerData, setEmployerData] = useState({
@@ -29,7 +30,7 @@ const EmployerProfile: React.FC = () => {
     const fetchCompany = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:4000/v1/companies/profile",
+          `${API_URL}/v1/companies/profile`,
           { withCredentials: true }
         );
         const company = response.data.data;

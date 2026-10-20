@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import axios from "axios";
 import Link from "next/link";
+import { API_URL } from "@/lib/config";
 
 const UserNav = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/v1/auth/logout", {
+      const response = await axios.get(`${API_URL}/v1/auth/logout`, {
         withCredentials: true,
       });
       console.log("response:", response.data);

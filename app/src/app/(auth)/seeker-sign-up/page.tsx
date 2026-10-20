@@ -11,6 +11,7 @@ import { Icon } from "@/components";
 import { SeekerSignUpSchema } from "../../../validation/seekerSignUp";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/config";
 
 const SeekerSignUp = () => {
   const [signupError, setSignupError] = useState("");
@@ -41,7 +42,7 @@ const SeekerSignUp = () => {
       setLoading(true);
 
       const response = await axios.post(
-        "http://localhost:4000/v1/auth/signup",
+        `${API_URL}/v1/auth/signup`,
         {
           username,
           email,

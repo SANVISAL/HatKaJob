@@ -6,6 +6,7 @@ import { useState } from "react";
 import { PostJobSchema } from "@/validation/postJob";
 import axios from "axios";
 import "@/app/globals.css";
+import { API_URL } from "@/lib/config";
 
 const initialFormState = {
     companyName: "",
@@ -51,7 +52,7 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ onSuccess, onCancel }) => {
   // Prefill the company name from the employer's company profile
   useEffect(() => {
     axios
-      .get("http://localhost:4000/v1/companies/profile", {
+      .get(`${API_URL}/v1/companies/profile`, {
         withCredentials: true,
       })
       .then((response) => {
@@ -110,7 +111,7 @@ const PostJobForm: React.FC<PostJobFormProps> = ({ onSuccess, onCancel }) => {
 
       // Send POST request to backend
       const response = await axios.post(
-        `http://localhost:4000/v1/jobs`,
+        `${API_URL}/v1/jobs`,
         postData,
         {
           headers: { "Content-Type": "application/json" },

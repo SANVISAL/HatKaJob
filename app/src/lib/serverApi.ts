@@ -1,9 +1,10 @@
 import { cookies, headers } from "next/headers";
 import axios from "axios";
+import { API_URL } from "@/lib/config";
 
 // Server-side only helpers for calling the API gateway from server components.
 
-const GATEWAY_URL = "http://localhost:4000";
+const GATEWAY_URL = API_URL;
 
 // Every server-side request reaches the gateway from this server's IP, so
 // without this the gateway's per-IP rate limit would count all visitors as
